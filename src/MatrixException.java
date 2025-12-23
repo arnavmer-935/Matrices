@@ -24,13 +24,12 @@ public class MatrixException extends RuntimeException {
     }
 
     public static MatrixException requireSquareMatrix() {
-        return new MatrixException("This operation requires the Matrix to have an equal number of rows and columns");
+        return new MatrixException("This operation requires the Matrix to have an equal number of rows and columns.");
     }
 
     public static MatrixException dimensionMismatch() {
         return new MatrixException("Number of columns in first matrix must match the number of rows in second matrix.");
     }
-
 
     public static MatrixException matrixSingularity() {
         return new MatrixException("This operation is not defined for a singular matrix.");

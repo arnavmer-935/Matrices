@@ -13,9 +13,9 @@ public class Matrix {
         }
     };
     private static final double TOLERANCE = 1e-6;
-    private int rows;
-    private int columns;
-    private Pair order;
+    private final int rows;
+    private final int columns;
+    private final Pair order;
     private double[][] entries;
 
 
@@ -54,7 +54,7 @@ public class Matrix {
         }
 
         if (grid.isEmpty() || grid.getFirst().isEmpty()) {
-            throw new IllegalArgumentException("Matrix dimensions must be positive.");
+            throw MatrixException.illegalDimensions();
         }
 
         if (isJaggedGrid(grid)) {
@@ -141,7 +141,7 @@ public class Matrix {
 
     public Pair getOrder() { return this.order; }
 
-    public double[][] getEntries() { return this.entries; }
+    private double[][] getEntries() { return this.entries; }
 
     public void setEntry(double value, int r, int c) {
         if (!isInBounds(r,c)) {
@@ -227,7 +227,9 @@ public class Matrix {
 
         for (int i = 0; i < rows; i++) {
             for (int j = i+1; j < columns; j++) {
-                swap(entries[i][j], entries[j][i]);
+                double temp = entries[i][j];
+                entries[i][j] = entries[j][i];
+                entries[j][i] = temp;
             }
         }
     }
@@ -424,9 +426,10 @@ public class Matrix {
 
     public boolean preceeds(Matrix other) {
         if (this.getOrder().equals(other.getOrder())) {
+            double[][] tempGrid = other.getEntries();
             for (int i = 0; i < rows; i++) {
                 for (int j = 0; j < columns; j++) {
-                    if (this.entries[i][j] > other.entries[i][j]) {
+                    if (this.entries[i][j] > tempGrid[i][j]) {
                         return false;
                     }
                 }
@@ -469,26 +472,22 @@ public class Matrix {
     }
 
     private double getValue(int r, int c) {
-        if (isInBounds(r, c)) {
-            return this.entries[r][c];
+        if (!isInBounds(r, c)) {
+            throw new IndexOutOfBoundsException(String.format("Cell coordinates (%d, %d) out of bounds for Matrix of order %s", r, c, order));
         }
-        return -1;
+        return this.entries[r][c];
     }
 
     private static boolean almostEqual(double a, double b) {
         return Math.abs(a-b) <= TOLERANCE;
     }
 
-    private void swap(double a, double b) {
-        double temp = a;
-        a = b;
-        b = temp;
-    }
-
-    private void reverseRow(double[] row) {
+    private static void reverseRow(double[] row) {
         int n = row.length;
         for (int i = 0; i < n / 2; i++) {
-            swap(row[i], row[n - i - 1]);
+            double temp = row[i];
+            row[i] = row[n - i - 1];
+            row[n - i - 1] = temp;
         }
     }
 
@@ -498,28 +497,32 @@ public class Matrix {
         }
     }
 
-    private ArrayList<Double> getLowerTriangle() {
-        ArrayList<Double> result = new ArrayList<>();
-        if (this.isSquareMatrix()) {
-            for (int i = 0; i < this.rows; i++) {
-                for (int j = 0; j < this.columns; j++) {
-                    if (i <= j) {
-                        result.add(entries[i][j]);
-                    }
+    private List<Double> getLowerTriangle() {
+        if (!this.isSquareMatrix()) {
+            throw MatrixException.requireSquareMatrix();
+        }
+
+        List<Double> result = new ArrayList<>();
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.columns; j++) {
+                if (i >= j) {
+                    result.add(entries[i][j]);
                 }
             }
         }
         return result;
     }
 
-    private ArrayList<Double> getUpperTriangle() {
-        ArrayList<Double> result = new ArrayList<>(); //includes diagonal as well
-        if (this.isSquareMatrix()) {
-            for (int i = 0; i < this.rows; i++) {
-                for (int j = 0; j < this.columns; j++) {
-                    if (i >= j) {
-                        result.add(entries[i][j]);
-                    }
+    private List<Double> getUpperTriangle() {
+        if (!this.isSquareMatrix()) {
+            throw MatrixException.requireSquareMatrix();
+        }
+
+        List<Double> result = new ArrayList<>();
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.columns; j++) {
+                if (i <= j) {
+                    result.add(entries[i][j]);
                 }
             }
         }
@@ -537,17 +540,25 @@ public class Matrix {
         return true;
     }
 
-    private double dotProduct(double[] arr1, double[] arr2) {
-        assert arr1.length == arr2.length;
+    private static double dotProduct(double[] arr1, double[] arr2) {
+        int len1 = arr1.length;
+        int len2 = arr2.length;
+        if (len1 != len2) {
+            throw new IllegalArgumentException(String.format("Dot product is undefined for array lengths %d and %d", len1, len2));
+        }
 
         double res = 0;
-        for (int i = 0; i < arr1.length; i++) {
+        for (int i = 0; i < len1; i++) {
             res += (arr1[i] * arr2[i]);
         }
         return res;
     }
 
     private double[] getColumn(int n) {
+
+        if (!colInRange(n)) {
+            throw new IndexOutOfBoundsException(String.format("Column index %d is out of bounds for Matrix of order %s", n, order));
+        }
         double[] col = new double[this.rows];
         for (int i = 0; i < this.rows; i++) {
             col[i] = this.getValue(i, n);
@@ -564,6 +575,10 @@ public class Matrix {
     }
 
     private int getMismatchedRowIndex(double[][] grid) {
+        if (grid.length == 0) {
+            throw new IllegalArgumentException("Matrix grid must be non-empty.");
+        }
+
         int refSize = grid[0].length;
         for (int i = 1; i < grid.length; i++) {
             if (grid[i].length != refSize) {
@@ -571,10 +586,13 @@ public class Matrix {
             }
         }
         return -1; //No such row found
-        //TODO: modify isjagged method based on this
     }
 
     private int getMismatchedRowIndex(List<List<Double>> grid) {
+        if (grid == null) {
+            throw new IllegalArgumentException("Matrix grid must be non-null.");
+        }
+
         int refSize = grid.getFirst().size();
         for (int i = 1; i < grid.size(); i++) {
             if (grid.get(i).size() != refSize) {
@@ -604,6 +622,10 @@ public class Matrix {
     }
 
     private double[][] populateJaggedMatrix(double[][] matrix) {
+        if (matrix.length == 0) {
+            throw new IllegalArgumentException("Matrix grid must be non-empty");
+        }
+
         double[] longestRow = {};
         for (double[] row : matrix) {
             if (longestRow.length < row.length) {
@@ -621,12 +643,8 @@ public class Matrix {
 
     private boolean onlyZeroesInDiagonal() {
         for (int i = 0; i < this.rows; i++) {
-            for (int j = 0; j < this.columns; j++) {
-                if (i == j) {
-                    if (!almostEqual(entries[i][j], 0.0)) {
-                        return false;
-                    }
-                }
+            if (!almostEqual(entries[i][i], 0.0)) {
+                return false;
             }
         }
         return true;
@@ -634,11 +652,12 @@ public class Matrix {
 
     private boolean equalsMatrix(Matrix other) {
         if (this == other) return true;
-        if (this == null || other == null || !this.getOrder().equals(other.getOrder())) return false;
+        if (other == null || !this.getOrder().equals(other.getOrder())) return false;
 
+        double[][] tempGrid = other.getEntries();
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.columns; j++) {
-                if (!almostEqual(this.entries[i][j], other.entries[i][j])) {
+                if (!almostEqual(this.entries[i][j], tempGrid[i][j])) {
                     return false;
                 }
             }
@@ -689,15 +708,12 @@ public class Matrix {
 
     @Override
     public boolean equals(Object other) {
-        boolean flag;
-        switch (other) {
-            case Matrix o -> flag = this.equalsMatrix(o) && this.order.equals(o.getOrder());
-            default -> {
-                flag = false;
-            }
-        }
-        return flag;
+        if (!(other instanceof Matrix)) return false;
+
+        Matrix o = (Matrix)other;
+        return this.equalsMatrix(o);
     }
+
 
 }
 
