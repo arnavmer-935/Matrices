@@ -1,6 +1,4 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Matrix {
@@ -335,7 +333,6 @@ public class Matrix {
         return new Matrix(transposedGrid);
     }
 
-
     public Matrix multiply(Matrix other) {
         if (other == null) {
             throw new IllegalArgumentException("Matrix operand must be non-null.");
@@ -380,8 +377,10 @@ public class Matrix {
     }
 
     // ==== NUMERICAL METHODS ====
-    //TODO: Optimize using row reduction
     public double determinant(Matrix m) {
+
+        //TODO: Optimize using row reduction
+
         if (!m.isSquareMatrix()) {
             return 0;
         }
@@ -429,7 +428,6 @@ public class Matrix {
         }
         return true;
     }
-
 
     public boolean isUpperTriangular() {
         for (Double x : this.getLowerTriangle()) {
@@ -509,7 +507,7 @@ public class Matrix {
 
     // ==== HELPER METHODS ====
     private boolean isInBounds(int r, int c) {
-        return 0 <= r && r < this.rows && 0 <= c && c < this.columns;
+        return rowInRange(r) && colInRange(c);
     }
 
     private double getValue(int r, int c) {
@@ -729,6 +727,41 @@ public class Matrix {
         return result;
     }
 
+    private double findValidPivot(int colIdx) {
+        if (!colInRange(colIdx)) {
+            throw new IndexOutOfBoundsException(String.format("Column index %d is out of bounds for Matrix of order %s", colIdx, this.order));
+        }
+
+        if (colIdx == this.rows-1) {
+            return -1; //not found
+        }
+
+        if (!almostEqual(this.entries[colIdx][colIdx], 0.0)) {
+            return this.entries[colIdx][colIdx]; //Ideal case: pivot is found along diagonal
+        }
+
+        for (int rowIdx = colIdx + 1; rowIdx < this.rows; rowIdx++) { //already checked diagonal
+            double possible = this.entries[rowIdx][colIdx];
+            if (!almostEqual(possible, 0.0)) {
+                return possible;
+                //in this case, row swapping needs to be done until the pivot ends up on the diagonal.
+                // track number of row swaps for final det calculation
+            }
+        }
+        return -1; //valid pivot not found in that column. If a valid pivot is not found, the determinant is zero
+    }
+
+    private boolean isDiagonalElement(double value) {
+        for (int i = 0; i < this.rows; i++) {
+            double diagonalElement = this.entries[i][i];
+            if (almostEqual(diagonalElement, value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     private String formattedValue(double v) {
         return Math.abs(v) <= TOLERANCE ? "0.0" : String.format("%.3f", v);
     }
@@ -737,6 +770,9 @@ public class Matrix {
 
     @Override
     public String toString() {
+
+        //TODO: modify for equal row lengths in string representation
+
         StringBuilder matrix = new StringBuilder();
         for (int r = 0; r < rows; r++) {
             matrix.append("[ ");
