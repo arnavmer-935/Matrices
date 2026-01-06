@@ -10,6 +10,33 @@ public class Matrix {
             return String.format("(%d, %d)", x, y);
         }
     }
+
+    private static class Pivot {
+        double value;
+        int rowIndex;
+        int colIndex;
+        boolean swapsNeeded;
+
+        Pivot() { //when valid pivot cannot be found
+            value = 0.0;
+            rowIndex = -1;
+            colIndex = -1;
+            swapsNeeded = false;
+        }
+
+        Pivot(double v, int r, int c, boolean s) {
+            value = v;
+            rowIndex = r;
+            colIndex = c;
+            swapsNeeded = s;
+        }
+
+        double value() { return value; }
+        int row() { return rowIndex; }
+        int col() { return colIndex; }
+        boolean swapsNeeded() { return swapsNeeded; }
+    }
+
     private static final double TOLERANCE = 1e-6;
     private final int rows;
     private final int columns;
@@ -388,11 +415,11 @@ public class Matrix {
             throw MatrixException.requireSquareMatrix();
         }
 
-        if (this.getOrder().equals(new Pair(1,1))) { //single element matrix
+        if (this.rows == 1 && this.columns == 1) { //single element matrix
             return this.entries[0][0];
         }
 
-        if (this.getOrder().equals(new Pair(2,2))) { //2x2 square matrix
+        if (this.rows == 2 && this.columns == 2) { //2x2 square matrix
             return (this.entries[0][0] * this.entries[1][1]) - (this.entries[0][1] * this.entries[1][0]);
         }
 
@@ -402,26 +429,28 @@ public class Matrix {
         int swapCount = 0;
 
         for (int c = 0; c < COLS; c++) {
-            int originalC = c;
             //first find a valid pivot
-            double pivot = findValidPivot(grid, c); //also needs to return pivot's row index
+            Pivot pivot = findValidPivot(grid, c);
 
-            if (!isDiagonalElement(pivot)) {
-                double[] temp = grid[originalC];
-                grid[originalC] = grid[c];
-                grid[c] = temp;
+            if (pivot.row() == -1) { //valid, non-zero pivot not found in column, hence the determinant is zero
+                return 0.0;
+            }
+
+            if (pivot.swapsNeeded()) {
+                swapGridRow(grid, c, pivot.row());
                 swapCount++;
             }
-            //if it lies on diagonal, no swaps needed
-            // otherwise, swap pivot row with the row at index originalC.
+
+            //if it lies on diagonal, no swaps needed (covered in findValidPivot method)
+            // otherwise, swap pivot row with the row at index 'c'.
             //increment swap count
-            
+
             //then iterate over subsequent elements of column c.
-            for (int rowCursor = c + 1; rowCursor < ROWS - 1; rowCursor++) {
+            for (int rowCursor = c + 1; rowCursor < ROWS; rowCursor++) {
                 //calculate row reduction factor and apply to entire row
                 for (int i = 0; i < grid[rowCursor].length; i++) {
 
-                    double factor = grid[rowCursor][i] / pivot;
+                    double factor = grid[rowCursor][c] / grid[c][c];
                     double elementInPivotRow = grid[c][i];
                     grid[rowCursor][i] -= (factor * elementInPivotRow);
                 }
@@ -755,29 +784,31 @@ public class Matrix {
         return result;
     }
 
-    private double findValidPivot(double[][] grid, int colIdx) {
+    private Pivot findValidPivot(double[][] grid, int colIdx) {
 
         if (0 > colIdx || colIdx >= grid[0].length) {
             throw new IndexOutOfBoundsException("Column index out of bounds.");
         }
 
-        if (colIdx == grid.length-1) {
-            return -1; //not found
-        }
-
         if (!almostEqual(grid[colIdx][colIdx], 0.0)) {
-            return this.entries[colIdx][colIdx]; //Ideal case: pivot is found along diagonal
+            return new Pivot(grid[colIdx][colIdx], colIdx, colIdx, false); //Ideal case: pivot is found along diagonal
         }
 
         for (int rowIdx = colIdx + 1; rowIdx < grid.length; rowIdx++) { //already checked diagonal
-            double possible = grid[rowIdx][colIdx];
-            if (!almostEqual(possible, 0.0)) {
-                return possible;
+            double possibleValue = grid[rowIdx][colIdx];
+            if (!almostEqual(possibleValue, 0.0)) {
+                return new Pivot(possibleValue, rowIdx, colIdx, true);
                 //in this case, row swapping needs to be done until the pivot ends up on the diagonal.
                 // track number of row swaps for final det calculation
             }
         }
-        return -1; //valid pivot not found in that column. If a valid pivot is not found, the determinant is zero
+        return new Pivot(); //valid pivot not found in that column. If a valid pivot is not found, the determinant is zero
+    }
+
+    private void swapGridRow(double[][] grid, int c, int row) {
+        double[] temp = grid[c];
+        grid[c] = grid[row];
+        grid[row] = temp;
     }
 
     private boolean isDiagonalElement(double value) {
