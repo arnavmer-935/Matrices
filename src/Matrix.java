@@ -386,8 +386,9 @@ public class Matrix {
     }
 
     public Matrix inverse() {
-        if (this.isSingular()) {
-            throw MatrixException.matrixSingularity();
+
+        if (!this.isSquareMatrix()) {
+            throw MatrixException.requireSquareMatrix();
         }
 
 //        int nrows = m.getRows();
@@ -401,7 +402,24 @@ public class Matrix {
 //
 //        Matrix adj = new Matrix(adjoint);
 //        return adj.multiplyByScalar(Math.pow(determinant(m), -1));
-        //TODO: Implement elimination
+        //First create augmented matrix split across two partitions, left and right
+        //process starts with left = original matrix, right = identity matrix
+        //ends with left = identity, right = inverse. We have to return new Matrix(right);
+
+        double[][] left = deepGridCopy(this.entries);
+        double[][] right = createIdentityMatrix(rows).toArray();
+
+        //First apply row redutcion to left matrix to make it upper triangular, apply these operations to right matrix as well
+        //then reduce the upper triangle of the matrix to zeroes, which makes 'left' a matrix with only diagonal elements
+        //then convert left into an identity matrix, by dividing the xth row in right by the element 'left[x][x]'
+        //right is the required inverse
+
+        return null; //REMOVE WHEN DONE
+
+    }
+
+    public double[][] toArray() {
+        return deepGridCopy(this.entries);
     }
 
     // ==== NUMERICAL METHODS ====
