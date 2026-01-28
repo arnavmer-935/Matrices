@@ -387,34 +387,47 @@ public class Matrix {
 
     public Matrix inverse() {
 
-        if (!this.isSquareMatrix()) {
-            throw MatrixException.requireSquareMatrix();
+        if (isJaggedGrid(this.entries)) {
+            throw MatrixException.jaggedMatrix(getMismatchedRowIndex(this.entries));
         }
 
-//        int nrows = m.getRows();
-//        int ncols = m.getColumns();
-//        double[][] adjoint = new double [nrows][ncols];
-//        for (int i = 0; i < nrows; i++) {
-//            for (int j = 0; j < ncols; ++j) {
-//                adjoint[j][i] = determinant(getCofactorMatrix(i, j));
-//            }
-//        }
-//
-//        Matrix adj = new Matrix(adjoint);
-//        return adj.multiplyByScalar(Math.pow(determinant(m), -1));
-        //First create augmented matrix split across two partitions, left and right
-        //process starts with left = original matrix, right = identity matrix
-        //ends with left = identity, right = inverse. We have to return new Matrix(right);
+        if (!isSquareMatrix()) {
+            throw MatrixException.requireSquareMatrix();
+        }
 
         double[][] left = deepGridCopy(this.entries);
         double[][] right = createIdentityMatrix(rows).toArray();
 
-        //First apply row redutcion to left matrix to make it upper triangular, apply these operations to right matrix as well
-        //then reduce the upper triangle of the matrix to zeroes, which makes 'left' a matrix with only diagonal elements
-        //then convert left into an identity matrix, by dividing the xth row in right by the element 'left[x][x]'
-        //right is the required inverse
+        for (int i = 0; i < left[0].length; i++) {
+            Pivot pivot = findValidPivot(left, i);
 
-        return null; //REMOVE WHEN DONE
+            if (pivot.row() == -1) {
+                throw MatrixException.matrixSingularity();
+            }
+
+            if (pivot.swapsNeeded()) {
+                swapGridRow(left, i, pivot.row());
+                swapGridRow(right, i, pivot.row());
+            }
+
+            double scaleFactor = left[i][i];
+            for (int c = 0; c < left[0].length; c++) { //normalizing pivot row
+                left[i][c] /= scaleFactor;
+                right[i][c] /= scaleFactor;
+            }
+
+            for (int row = 0; row < left.length; row++) {
+                if (row == i) continue;
+                double factor = left[row][i]; //since pivot value becomes 1 after normalization;
+
+                for (int j = 0; j < left[row].length; j++) {
+                    left[row][j] -= (factor * left[i][j]);
+                    right[row][j] -= (factor * right[i][j]);
+                }
+            }
+        }
+
+        return new Matrix(right);
 
     }
 
@@ -848,7 +861,7 @@ public class Matrix {
     }
 
     private String formattedValue(double v) {
-        return Math.abs(v) <= TOLERANCE ? "0.0" : String.format("%.3f", v);
+        return Math.abs(v) <= TOLERANCE ? "0.0000" : String.format("%.4f", v);
     }
 
     // ==== OBJECT METHODS ====
@@ -856,14 +869,27 @@ public class Matrix {
     @Override
     public String toString() {
 
-        //TODO: modify for equal row lengths in string representation
+        String[][] formattedValues = new String[rows][columns];
+        int longestLength = 0;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                String val = formattedValue(entries[i][j]);
+                longestLength = Math.max(longestLength, val.length());
+
+                formattedValues[i][j] = val;
+            }
+        }
 
         StringBuilder matrix = new StringBuilder();
         for (int r = 0; r < rows; r++) {
             matrix.append("[ ");
             for (int c = 0; c < columns; c++) {
-                matrix.append(formattedValue(getValue(r,c)));
-                matrix.append(" ");
+
+                if (c == columns - 1) {
+                    matrix.append("  ");
+                }
+                matrix.append(String.format("%" + longestLength + "s", formattedValues[r][c]));
+
             }
             matrix.append("]\n");
         }
