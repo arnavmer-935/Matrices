@@ -8,7 +8,8 @@ public class MatrixException extends RuntimeException {
     }
 
     public static MatrixException jaggedMatrix(int mismatchedIndex) {
-        return new MatrixException(String.format("Length of row at index %d does not match the length of row at index 0"));
+        return new MatrixException(String.format("Length of row at index %d does not match the length of row at index 0",
+                mismatchedIndex));
     }
 
     public static MatrixException rowLengthMismatch() {

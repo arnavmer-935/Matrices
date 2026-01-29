@@ -880,20 +880,16 @@ public class Matrix {
             }
         }
 
-        StringBuilder matrix = new StringBuilder();
+        StringBuilder res = new StringBuilder();
         for (int r = 0; r < rows; r++) {
-            matrix.append("[ ");
+            res.append("[ ");
             for (int c = 0; c < columns; c++) {
-
-                if (c == columns - 1) {
-                    matrix.append("  ");
-                }
-                matrix.append(String.format("%" + longestLength + "s", formattedValues[r][c]));
-
+                res.append(String.format("%" + longestLength + "s", formattedValues[r][c]));
+                if (c < columns - 1) res.append("  ");
             }
-            matrix.append("]\n");
+            res.append(" ]\n");
         }
-        return matrix.toString();
+        return res.toString();
     }
 
     @Override
