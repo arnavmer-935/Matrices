@@ -1,5 +1,5 @@
+package main;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Matrix {
 
@@ -31,9 +31,8 @@ public class Matrix {
             swapsNeeded = s;
         }
 
-        double value() { return value; }
+
         int row() { return rowIndex; }
-        int col() { return colIndex; }
         boolean swapsNeeded() { return swapsNeeded; }
     }
 
@@ -115,7 +114,7 @@ public class Matrix {
             throw new IllegalArgumentException("Matrix grid must be non-null.");
         }
 
-        if (rows.length <= 0 || rows[0].length == 0) {
+        if (rows.length == 0 || rows[0].length == 0) {
             throw MatrixException.illegalDimensions();
         }
 
@@ -157,7 +156,7 @@ public class Matrix {
         return new Matrix(res);
     }
 
-    public static Matrix nullMatrix(int nrows, int ncols) {
+    public static Matrix zeroMatrix(int nrows, int ncols) {
         return constant(nrows, ncols, 0.0);
     }
 
@@ -311,7 +310,7 @@ public class Matrix {
         }
 
         if (k == 0.0) {
-            return nullMatrix(this.rows, this.columns);
+            return zeroMatrix(this.rows, this.columns);
         }
 
         if (k == 1.0) {
@@ -370,7 +369,7 @@ public class Matrix {
         }
 
         if (this.isNullMatrix() || other.isNullMatrix()) {
-            return nullMatrix(this.rows, other.columns);
+            return zeroMatrix(this.rows, other.columns);
         }
 
         double[][] product = new double[this.rows][other.columns];
@@ -730,45 +729,6 @@ public class Matrix {
         return -1; //No such row whose length is different from reference size
     }
 
-    private Matrix getCofactorMatrix(int mthRow, int nthCol) {
-        if (!isInBounds(mthRow, nthCol)) {
-            throw new IndexOutOfBoundsException(String.format("Cell coordinates (%d, %d) out of bounds for Matrix of order %s", mthRow, nthCol, order));
-        }
-
-        List<List<Double>> gridList = new ArrayList<>(); //convert to arraylist grid for easier deletion of row and column
-        for (double[] row : this.entries) {
-            gridList.add(Arrays.stream(row).boxed().collect(Collectors.toList()));
-        }
-
-        gridList.forEach(rowList -> {
-            rowList.remove(nthCol);
-        });
-
-        gridList.remove(mthRow);
-
-        return new Matrix(gridList);
-    }
-
-    private double[][] populateJaggedMatrix(double[][] matrix) {
-        if (matrix.length == 0) {
-            throw new IllegalArgumentException("Matrix grid must be non-empty");
-        }
-
-        double[] longestRow = {};
-        for (double[] row : matrix) {
-            if (longestRow.length < row.length) {
-                longestRow = row;
-            }
-        }
-
-        double[][] populatedMatrix = new double[matrix.length][longestRow.length];
-        for (int i = 0; i < matrix.length; i++) {
-            System.arraycopy(matrix[i], 0, populatedMatrix[i], 0, matrix[i].length);
-        }
-
-        return populatedMatrix;
-    }
-
     private boolean onlyZeroesInDiagonal() {
         for (int i = 0; i < this.rows; i++) {
             if (!almostEqual(entries[i][i], 0.0)) {
@@ -808,9 +768,7 @@ public class Matrix {
         double[][] result = new double[nrows][ncols];
 
         for (int i = 0; i < nrows; i++) {
-            for (int j = 0; j < ncols; j++) {
-                result[i][j] = grid[i][j];
-            }
+            System.arraycopy(grid[i], 0, result[i], 0, ncols);
         }
         return result;
     }
@@ -904,6 +862,5 @@ public class Matrix {
         Matrix o = (Matrix)other;
         return this.equalsMatrix(o);
     }
-    
 }
 

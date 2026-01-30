@@ -1,3 +1,5 @@
+package main;
+
 public class MatrixException extends RuntimeException {
     private MatrixException(String message) {
         super(message);
