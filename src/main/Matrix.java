@@ -57,6 +57,10 @@ public class Matrix {
 
     public Matrix(double[][] grid) throws MatrixException {
 
+        if (grid == null) {
+            throw new IllegalArgumentException("Matrix grid must be non-null.");
+        }
+
         if (grid.length == 0 || grid[0].length == 0) {
             throw MatrixException.illegalDimensions();
         }
@@ -198,6 +202,10 @@ public class Matrix {
     public Pair getOrder() { return this.order; }
 
     private double[][] getEntries() { return this.entries; }
+
+    public double getEntry(int rowIndex, int colIndex) {
+        return getValue(rowIndex, colIndex);
+    }
 
     public void setEntry(double value, int r, int c) {
         if (!isInBounds(r,c)) {
