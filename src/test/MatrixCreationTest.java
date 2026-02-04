@@ -74,6 +74,19 @@ public class MatrixCreationTest {
     @DisplayName("Constant factory fills matrix with the given value")
     void constantFactoryFillsMatrixWithValue() {
 
+        Matrix constantMatrix = Matrix.constant(4,4,1.2345);
+        for (int i = 0; i < constantMatrix.getRows(); i++) {
+            for (int j = 0; j < constantMatrix.getColumns(); j++) {
+                assertEquals(1.2345, constantMatrix.getEntry(i,j), TOLERANCE);
+            }
+        }
+
+        Matrix largeConstantMatrix = Matrix.constant(50, 50, -273.6589);
+        for (int i = 0; i < constantMatrix.getRows(); i++) {
+            for (int j = 0; j < constantMatrix.getColumns(); j++) {
+                assertEquals(-273.6589, largeConstantMatrix.getEntry(i,j), TOLERANCE);
+            }
+        }
     }
 
     @Test
