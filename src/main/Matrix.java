@@ -86,7 +86,7 @@ public class Matrix {
 
     public Matrix(List<List<Double>> grid) {
 
-        if (grid == null || containsNullRows(grid)) {
+        if (grid == null) {
             throw new IllegalArgumentException("Matrix grid must be non-null.");
         }
 
