@@ -839,7 +839,7 @@ public class Matrix {
         int hash = 0;
         for (double[] row : grid) {
             for (double value : row) {
-                double normalized = Math.round(value / TOLERANCE) * TOLERANCE;
+                double normalized = Math.floor(value / (2 * TOLERANCE)) * (2 * TOLERANCE);
                 hash = (31 * hash) + Double.hashCode(normalized);
             }
         }

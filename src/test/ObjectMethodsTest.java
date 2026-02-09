@@ -10,11 +10,13 @@ import static java.lang.Double.NaN;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ObjectMethodsTest {
-    
-    private static final double TOLERANCE = 1e-6;
+
     private Matrix A1, A2;
     private Matrix B1, B2;
     private Matrix C1, C2;
+    private Matrix U1, U2;
+    private Matrix D1, D2;
+    private Matrix O1, O2;
 
     @BeforeEach
     void setup() {
@@ -51,12 +53,61 @@ public class ObjectMethodsTest {
                 new double[] { 1001.5, 1, -998.25, 43 },
                 new double[] { -6, 9.8, 1.0001, -49999 }
         );
+
+        U1 = Matrix.ofRows(
+                new double[] { 5.0 }
+        );
+
+       U2 = Matrix.ofRows(
+                new double[] { 5.0 + 0.9e-6 }
+        );
+
+       D1 = Matrix.ofRows(
+                new double[] { 10.0 }
+        );
+
+       D2 = Matrix.ofRows(
+                new double[] { 10.0 + 1e-6 }
+        );
+
+       O1 = Matrix.ofRows(
+                new double[] { -3.0 }
+        );
+
+       O2 = Matrix.ofRows(
+                new double[] { -3.0 + 1.1e-6 }
+        );
+
     }
 
 
     @Test
+    @DisplayName("Equals method works.")
     void doNearlyEqualMatricesReturnTrue() {
 
+        //reflexivity
+        assertEquals(A1, A1);
+        assertEquals(A2, A2);
+        assertEquals(B1, B1);
+        assertEquals(B2, B2);
+        assertEquals(C1, C1);
+        assertEquals(C2, C2);
+
+        //symmetry
+        assertEquals(A1, A2);
+        assertEquals(A2, A1);
+        assertEquals(B1, B2);
+        assertEquals(B2, B1);
+
+        //null checks
+        assertNotEquals(null, A1);
+        assertNotEquals("This is a Matrix", A2);
+
+        //dimension-based inequality
+        assertNotEquals(new Matrix(3,2), new Matrix(2,3));
+        assertNotEquals(new Matrix(5,5), new Matrix(5,3));
+
+        //standard comparisons
         assertEquals(A1, A2);
         assertNotEquals(A1, B1);
         assertNotEquals(A1, B2);
@@ -68,23 +119,46 @@ public class ObjectMethodsTest {
         assertNotEquals(B2, C2);
 
         assertNotEquals(C1, C2);
+
+        //Edge cases
+        assertEquals(U1, U2);
+        assertEquals(D1, D2);
+        assertNotEquals(O1, O2);
         
     }
 
     @Test
+    @DisplayName("Hashcode method works.")
     void doNearlyEqualMatricesHaveSimilarHashcodes() {
 
-        assertEquals(A1.hashCode(), A2.hashCode(), TOLERANCE);
-        assertNotEquals(A1.hashCode(), B1.hashCode(), TOLERANCE);
-        assertNotEquals(A1.hashCode(), B2.hashCode(), TOLERANCE);
+        assertEquals(A1.hashCode(), A2.hashCode());
+        assertNotEquals(A1.hashCode(), B1.hashCode());
+        assertNotEquals(A1.hashCode(), B2.hashCode());
 
-        assertEquals(B1.hashCode(), B2.hashCode(), TOLERANCE);
-        assertNotEquals(B1.hashCode(), C1.hashCode(), TOLERANCE);
-        assertNotEquals(B1.hashCode(), C2.hashCode(), TOLERANCE);
-        assertNotEquals(B2.hashCode(), C1.hashCode(), TOLERANCE);
-        assertNotEquals(B2.hashCode(), C2.hashCode(), TOLERANCE);
+        assertEquals(B1.hashCode(), B2.hashCode());
+        assertNotEquals(B1.hashCode(), C1.hashCode());
+        assertNotEquals(B1.hashCode(), C2.hashCode());
+        assertNotEquals(B2.hashCode(), C1.hashCode());
+        assertNotEquals(B2.hashCode(), C2.hashCode());
 
-        assertNotEquals(C1.hashCode(), C2.hashCode(), TOLERANCE);
+        assertNotEquals(C1.hashCode(), C2.hashCode());
+        assertEquals(U1.hashCode(), U2.hashCode());
+        assertEquals(D1.hashCode(), D2.hashCode());
+        assertNotEquals(D1.hashCode(), D2.hashCode());
+    }
+
+    @Test
+    @DisplayName("Class conforms to equals-hashcode contract.")
+    void doesMatrixConformToEqualsHashcodeContract() {
+
+        if (A1.equals(A2)) {
+            assertEquals(A1.hashCode(), A2.hashCode());
+        }
+
+        if (B1.equals(B2)) {
+            assertEquals(B1.hashCode(), B2.hashCode());
+        }
+
     }
 
     @Test
