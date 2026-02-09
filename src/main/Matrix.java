@@ -57,27 +57,7 @@ public class Matrix {
 
     public Matrix(double[][] grid) throws MatrixException {
 
-        if (grid == null || containsNullRows(grid)) {
-            throw new IllegalArgumentException("Matrix grid must be non-null.");
-        }
-
-        if (grid.length == 0 || grid[0].length == 0) {
-            throw MatrixException.illegalDimensions();
-        }
-
-        if (isJaggedGrid(grid)) {
-            throw MatrixException.jaggedMatrix(getMismatchedRowIndex(grid));
-        }
-        
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[0].length; j++) {
-                
-                if (!Double.isFinite(grid[i][j])) {
-                    throw new IllegalArgumentException("Infinite value at coordinates " + new Pair(i,j));
-                }
-            }
-        }
-
+        validateGrid(grid);
         this.entries = deepGridCopy(grid);
         this.rows = grid.length;
         this.columns = grid[0].length;
@@ -128,24 +108,11 @@ public class Matrix {
     }
 
     public static Matrix ofRows(double[]... rows) {
-        if (rows == null || containsNullRows(rows)) {
-            throw new IllegalArgumentException("Matrix grid must be non-null.");
-        }
-
-        if (rows.length == 0 || rows[0].length == 0) {
-            throw MatrixException.illegalDimensions();
-        }
-
-        if (isJaggedGrid(rows)) {
-            throw MatrixException.jaggedMatrix(getMismatchedRowIndex(rows));
-        }
-        
+        validateGrid(rows);
         double[][] result = new double[rows.length][rows[0].length];
+
         for (int i = 0; i < rows.length; i++) {
             for (int j = 0; j < rows[0].length; j++) {
-                if (!Double.isFinite(rows[i][j])) {
-                    throw MatrixException.infiniteValue();
-                }
                 result[i][j] = rows[i][j];
             }
         }
@@ -234,9 +201,13 @@ public class Matrix {
     }
 
     public void setRow(double[] row, int rowIndex) {
+
+        if (row == null) {
+            throw new IllegalArgumentException("Input row must be non-null.");
+        }
+
         if (row.length != columns) {
             throw MatrixException.rowLengthMismatch();
-
         }
 
         if (!rowInRange(rowIndex)) {
@@ -253,6 +224,10 @@ public class Matrix {
     }
 
     public void setColumn(double[] col, int colIndex) {
+        if (col == null) {
+            throw new IllegalArgumentException("Input column must be non-null.");
+        }
+
         if (col.length != rows) {
             throw MatrixException.columnLengthMismatch();
 
@@ -878,6 +853,28 @@ public class Matrix {
             }
         }
         return false;
+    }
+
+    private static void validateGrid(double[][] grid) {
+        if (grid == null || containsNullRows(grid)) {
+            throw new IllegalArgumentException("Matrix grid must be non-null.");
+        }
+
+        if (grid.length == 0 || grid[0].length == 0) {
+            throw MatrixException.illegalDimensions();
+        }
+
+        if (isJaggedGrid(grid)) {
+            throw MatrixException.jaggedMatrix(getMismatchedRowIndex(grid));
+        }
+
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[0].length; j++) {
+                if (!Double.isFinite(grid[i][j])) {
+                    throw new IllegalArgumentException("Infinite value at coordinates " + new Pair(i,j));
+                }
+            }
+        }
     }
 
     // ==== OBJECT METHODS ====

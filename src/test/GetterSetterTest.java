@@ -42,7 +42,15 @@ public class GetterSetterTest {
         assertThrows(MatrixException.class, () -> new Matrix(3,2).setRow(exceptionRow, 0));
         assertThrows(IndexOutOfBoundsException.class, () -> new Matrix(3,3).setRow(exceptionRow, 3));
 
+        assertThrows(IllegalArgumentException.class, () -> new Matrix(2,3).setRow(null, 0));
+        assertThrows(IllegalArgumentException.class, () -> new Matrix(3,3).setColumn(null, 1));
 
+        Matrix atomicityCheck = new Matrix(3,4);
+        Matrix atomicityCheckCopy = new Matrix(atomicityCheck.toArray()); //deep copies atomicityCheck matrix
+        double[] susRow = {1,-2,3, NaN};
+
+        assertThrows(IllegalArgumentException.class, () -> atomicityCheck.setRow(susRow, 0));
+        assertEquals(atomicityCheck, atomicityCheckCopy);
     }
 
     @Test
@@ -62,6 +70,12 @@ public class GetterSetterTest {
         assertThrows(MatrixException.class, () -> new Matrix(2,3).setColumn(exceptionCol, 0));
         assertThrows(IndexOutOfBoundsException.class, () -> new Matrix(3,3).setColumn(exceptionCol, 3));
 
+        Matrix atomicityCheck2 = new Matrix(3,4);
+        Matrix atomicityCheck2Copy = new Matrix(atomicityCheck2.toArray()); //deep copies atomicityCheck matrix
+        double[] susCol = {1,-2, NaN};
+
+        assertThrows(IllegalArgumentException.class, () -> atomicityCheck2.setColumn(susCol, 0));
+        assertEquals(atomicityCheck2, atomicityCheck2Copy);
     }
 
     @Test
@@ -76,6 +90,7 @@ public class GetterSetterTest {
         assertEquals(r1[0], testGetEntry.getEntry(0,0));
         assertEquals(r2[2], testGetEntry.getEntry(1,2));
         assertThrows(IndexOutOfBoundsException.class, () -> testGetEntry.getEntry(3,4));
+
         assertThrows(IndexOutOfBoundsException.class, () -> testGetEntry.getEntry(3,2));
         assertThrows(IndexOutOfBoundsException.class, () -> testGetEntry.getEntry(1,4));
         assertThrows(IndexOutOfBoundsException.class, () -> testGetEntry.getEntry(-1,-2));
