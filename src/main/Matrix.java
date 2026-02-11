@@ -107,6 +107,11 @@ public class Matrix {
         this.entries = new double[rows][columns];
     }
 
+    //deep copy constructor
+    public Matrix(Matrix A) {
+        this(getValidMatrix(A));
+    }
+
     public static Matrix ofRows(double[]... rows) {
         validateGrid(rows);
         double[][] result = new double[rows.length][rows[0].length];
@@ -875,6 +880,14 @@ public class Matrix {
                 }
             }
         }
+    }
+
+    private static double[][] getValidMatrix(Matrix A) {
+        if (A == null) {
+            throw new IllegalArgumentException("Matrix input must be non-null.");
+        }
+
+        return A.toArray();
     }
 
     // ==== OBJECT METHODS ====

@@ -9,6 +9,6 @@ public class TestUtils {
     private Random random;
 
     public Matrix createRandom(int nrows, int ncols, double start, double end) {
-
+        return null; //stub
     }
 }
