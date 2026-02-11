@@ -763,7 +763,7 @@ public class Matrix {
         double[][] tempGrid = other.getEntries();
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.columns; j++) {
-                if (!almostEqual(this.entries[i][j], tempGrid[i][j])) {
+                if (Double.compare(this.entries[i][j], tempGrid[i][j]) != 0) {
                     return false;
                 }
             }
@@ -809,7 +809,7 @@ public class Matrix {
                 // track number of row swaps for final det calculation
             }
         }
-        return new Pivot(); //valid pivot not found in that column. If a valid pivot is not found, the determiInfinite/undefined valuet is zero
+        return new Pivot(); //valid pivot not found in that column. If a valid pivot is not found, the determinant is 0
     }
 
     private void swapGridRow(double[][] grid, int c, int row) {
@@ -920,7 +920,7 @@ public class Matrix {
 
     @Override
     public int hashCode() {
-        return 31 * order.hashCode() + getArrayHashCode(this.entries);
+        return 31 * order.hashCode() + Arrays.deepHashCode(this.entries);
     }
 
     @Override

@@ -96,8 +96,8 @@ public class ObjectMethodsTest {
         //symmetry
         assertEquals(A1, A2);
         assertEquals(A2, A1);
-        assertEquals(B1, B2);
-        assertEquals(B2, B1);
+        assertNotEquals(B1, B2);
+        assertNotEquals(B2, B1);
 
         //null checks
         assertNotEquals(null, A1);
@@ -112,7 +112,7 @@ public class ObjectMethodsTest {
         assertNotEquals(A1, B1);
         assertNotEquals(A1, B2);
 
-        assertEquals(B1, B2);
+        assertNotEquals(B1, B2);
         assertNotEquals(B1, C1);
         assertNotEquals(B1, C2);
         assertNotEquals(B2, C1);
@@ -121,8 +121,8 @@ public class ObjectMethodsTest {
         assertNotEquals(C1, C2);
 
         //Edge cases
-        assertEquals(U1, U2);
-        assertEquals(D1, D2);
+        assertNotEquals(U1, U2);
+        assertNotEquals(D1, D2);
         assertNotEquals(O1, O2);
         
     }
@@ -135,15 +135,15 @@ public class ObjectMethodsTest {
         assertNotEquals(A1.hashCode(), B1.hashCode());
         assertNotEquals(A1.hashCode(), B2.hashCode());
 
-        assertEquals(B1.hashCode(), B2.hashCode());
+        assertNotEquals(B1.hashCode(), B2.hashCode());
         assertNotEquals(B1.hashCode(), C1.hashCode());
         assertNotEquals(B1.hashCode(), C2.hashCode());
         assertNotEquals(B2.hashCode(), C1.hashCode());
         assertNotEquals(B2.hashCode(), C2.hashCode());
 
         assertNotEquals(C1.hashCode(), C2.hashCode());
-        assertEquals(U1.hashCode(), U2.hashCode());
-        assertEquals(D1.hashCode(), D2.hashCode());
+        assertNotEquals(U1.hashCode(), U2.hashCode());
+        assertNotEquals(D1.hashCode(), D2.hashCode());
         assertNotEquals(D1.hashCode(), D2.hashCode());
     }
 

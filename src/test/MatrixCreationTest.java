@@ -99,8 +99,8 @@ public class MatrixCreationTest {
     }
 
     @Test
-    @DisplayName("Scalar factory creates 1x1 matrix with the given value")
-    void scalarFactoryCreatesUnitMatrix() {
+    @DisplayName("Scalar factory creates matrix with the given value")
+    void scalarFactoryCreatesMatrix() {
 
         Matrix scalarMatrix = Matrix.createScalarMatrix(3, 5);
         for (int i = 0; i < scalarMatrix.getRows(); i++) {
@@ -195,5 +195,20 @@ public class MatrixCreationTest {
         double[] c3 = {7.25, -999.1};
 
         assertThrows(MatrixException.class, () -> Matrix.ofColumns(c1,c2,c3));
+    }
+
+    @Test
+    @DisplayName("Copy constructor works.")
+    void deepCopyConstructorWorks() {
+        Matrix A = Matrix.ofRows(new double[] {1.0, 2.0, 3.0, 4.0}, new double[]{-2.0,-4.0,-6.0,-19.484});
+        Matrix B = new Matrix(A);
+
+        assertEquals(A, B);
+        assertEquals(A.getOrder(), B.getOrder());
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            Matrix X = null;
+            Matrix X2 = new Matrix(X);
+        });
     }
 }
