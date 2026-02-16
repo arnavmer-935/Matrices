@@ -13,6 +13,9 @@ public class OutOfPlaceOperationsTest {
     Matrix A;
     Matrix B;
     Matrix C;
+    Matrix D;
+    Matrix E;
+    Matrix E2;
     Matrix rectangular, rectangular2;
     Matrix identity2x2;
     Matrix singular2x2;
@@ -33,6 +36,16 @@ public class OutOfPlaceOperationsTest {
                 new double[]{2, -1},
                 new double[]{0, 3}
         );
+
+        D = Matrix.ofRows(
+                new double[] {1,2,3},
+                new double[] {4,5,6},
+                new double[] {7,8,9}
+        );
+
+        E = new Matrix(new double[][] {{1,2}});
+
+        E2 = Matrix.ofRows(new double[] {1});
 
         rectangular = Matrix.ofRows(
                 new double[]{1, 2, 3},
@@ -172,5 +185,113 @@ public class OutOfPlaceOperationsTest {
             assertEquals(copyA, A);
             assertEquals(copyB, B);
         }
+    }
+
+    @Nested
+    class OutOfPlaceTranspose {
+
+        @Test
+        @DisplayName("Transposes 2x2 and 3x3 square matrices and returns a new instance.")
+        void transposeWorksFor2x2and3x3_andReturnsNewInstance() {
+
+            Matrix transposeA = A.transpose();
+            Matrix transposeD = D.transpose();
+
+            Matrix expected1 = Matrix.ofRows(
+                    new double[]{1,3},
+                    new double[] {2,4}
+            );
+
+            Matrix expected2 = Matrix.ofRows(
+                    new double[] {1,4,7},
+                    new double[] {2,5,8},
+                    new double[] {3,6,9}
+            );
+
+            assertEquals(expected1, transposeA);
+            assertEquals(expected2, transposeD);
+
+            assertNotSame(transposeA, A); //checks that new object is created, so references should differ
+            assertNotSame(transposeD, D);
+        }
+
+        @Test
+        @DisplayName("Rectangular matrix transposes correctly.")
+        void transposeWorksForRectangularMatrix() {
+            Matrix rectangularTranspose1 = rectangular.transpose();
+            Matrix rectangularTranspose2 = rectangular2.transpose();
+            Matrix edgeCaseTranspose = E.transpose();
+            Matrix edgeCaseTranspose2 = E2.transpose();
+
+
+            Matrix expected1 = Matrix.ofRows(
+                    new double[] {1,4},
+                    new double[] {2,5},
+                    new double[] {3,6}
+            );
+
+            Matrix expected2 = Matrix.ofRows(
+                    new double[] {6,3},
+                    new double[] {5,2},
+                    new double[] {4,1}
+            );
+
+            Matrix expected3 = Matrix.ofRows(
+                    new double[] {1},
+                    new double[] {2}
+            );
+
+            Matrix expected4 = new Matrix(E2); //singleton matrix should remain unchanged
+
+            assertEquals(expected1, rectangularTranspose1);
+            assertEquals(expected2, rectangularTranspose2);
+            assertEquals(expected3, edgeCaseTranspose);
+            assertEquals(expected4, edgeCaseTranspose2);
+        }
+
+        @Test
+        @DisplayName("Transpose works for special matrix types.")
+        void transposeWorksForSpecialMatrices() {
+            Matrix specialTranspose1 = Matrix.createIdentityMatrix(3).transpose();
+            Matrix specialTranspose2 = Matrix.createScalarMatrix(3, 5).transpose();
+            Matrix specialTranspose3 = Matrix.zeroMatrix(3,3).transpose();
+            Matrix specialTranspose4 = Matrix.constant(2,3,5).transpose();
+
+            Matrix expected1 = Matrix.createIdentityMatrix(3);
+            Matrix expected2 = Matrix.createScalarMatrix(3,5);
+            Matrix expected3 = Matrix.zeroMatrix(3,3);
+            Matrix expected4 = Matrix.constant(3,2,5);
+
+            assertEquals(expected1, specialTranspose1);
+            assertEquals(expected2, specialTranspose2);
+            assertEquals(expected3, specialTranspose3);
+            assertEquals(expected4, specialTranspose4);
+        }
+
+        @Test
+        @DisplayName("Immutability of original matrix during transposition.")
+        void transposeLeavesOriginalUnchanged() {
+            Matrix originalA = new Matrix(A);
+
+            Matrix transposedA = originalA.transpose();
+
+            Matrix expectedTranspose = Matrix.ofRows(
+                    new double[] {1, 3},
+                    new double[] {2, 4}
+            );
+
+            Matrix expectedOriginal = Matrix.ofRows(
+                    new double[] {1, 2},
+                    new double[] {3, 4}
+            );
+
+            assertNotSame(originalA, transposedA);
+            assertEquals(expectedTranspose, transposedA);
+            assertEquals(expectedOriginal, originalA);
+
+            transposedA.setEntry(999, 0, 0);
+            assertEquals(1, originalA.getEntry(0, 0));
+        }
+
     }
 }

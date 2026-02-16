@@ -3,7 +3,7 @@ import java.util.*;
 
 /*
 * //TODO
-* 1. Add test cases for Matrix Multiplication, Transposes (non-void)
+* 1. Add test cases for Matrix Multiplication
 * 2. Add test cases for, and debug, determinant and inverse methods
 * 3. Add test cases for query methods
 * 4. Documentation and polish readme
