@@ -134,4 +134,43 @@ public class OutOfPlaceOperationsTest {
             });
         }
     }
+
+    @Nested
+    class OutOfPlaceSubtraction {
+        @Test
+        void subtract_valid() {
+            Matrix result = B.subtract(A);
+
+            Matrix expected = Matrix.ofRows(
+                    new double[]{4, 4},
+                    new double[]{4, 4}
+            );
+
+            assertEquals(expected, result);
+        }
+
+        @Test
+        void subtract_self_returnsZero() {
+            Matrix result = A.subtract(A);
+            Matrix expected = Matrix.zeroMatrix(2,2);
+            assertEquals(expected, result);
+        }
+
+        @Test
+        void subtract_throws() {
+            assertThrows(MatrixException.class, () -> A.subtract(rectangular));
+            assertThrows(IllegalArgumentException.class, () -> A.subtract(null));
+        }
+
+        @Test
+        void subtract_doesNotMutateOperands() {
+            Matrix copyA = new Matrix(A);
+            Matrix copyB = new Matrix(B);
+
+            Matrix result = A.subtract(B);
+
+            assertEquals(copyA, A);
+            assertEquals(copyB, B);
+        }
+    }
 }

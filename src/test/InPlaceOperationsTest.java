@@ -269,7 +269,6 @@ public class InPlaceOperationsTest {
 
             assertThrows(MatrixException.class, rectangular::transposeInPlace);
         }
-
     }
 
 

@@ -1,7 +1,16 @@
 package main;
 import java.util.*;
 
-public class Matrix {
+/*
+* //TODO
+* 1. Add test cases for Matrix Multiplication, Transposes (non-void)
+* 2. Add test cases for, and debug, determinant and inverse methods
+* 3. Add test cases for query methods
+* 4. Documentation and polish readme
+* 5. Tag release
+*/
+
+public final class Matrix {
 
     // ==== INSTANCE VARIABLES AND DECLARATIONS ====
     private record Pair(int x, int y) {
@@ -366,6 +375,9 @@ public class Matrix {
     }
 
     public Matrix subtract(Matrix other) {
+        if (other == null) {
+            throw new IllegalArgumentException("Matrix operand must be non-null.");
+        }
         return add(other.multiplyByScalar(-1));
     }
 
@@ -796,18 +808,16 @@ public class Matrix {
         }
 
         if (!almostEqual(grid[colIdx][colIdx], 0.0)) {
-            return new Pivot(grid[colIdx][colIdx], colIdx, colIdx, false); //Ideal case: pivot is found along diagonal
+            return new Pivot(grid[colIdx][colIdx], colIdx, colIdx, false);
         }
 
-        for (int rowIdx = colIdx + 1; rowIdx < grid.length; rowIdx++) { //already checked diagonal
+        for (int rowIdx = colIdx + 1; rowIdx < grid.length; rowIdx++) {
             double possibleValue = grid[rowIdx][colIdx];
             if (!almostEqual(possibleValue, 0.0)) {
                 return new Pivot(possibleValue, rowIdx, colIdx, true);
-                //in this case, row swapping needs to be done until the pivot ends up on the diagonal.
-                // track number of row swaps for final det calculation
             }
         }
-        return new Pivot(); //valid pivot not found in that column. If a valid pivot is not found, the determinant is 0
+        return new Pivot();
     }
 
     private void swapGridRow(double[][] grid, int c, int row) {
