@@ -401,16 +401,16 @@ public final class Matrix {
             throw MatrixException.dimensionMismatch();
         }
 
-        if (this.isNullMatrix() || other.isNullMatrix()) {
+        if (this.isZeroMatrix() || other.isZeroMatrix()) {
             return zeroMatrix(this.rows, other.columns);
         }
 
         double[][] product = new double[this.rows][other.columns];
 
         for (int i = 0; i < this.rows; i++) {
-            for (int j = 0; j < this.columns; j++) {
-                double[] jthColumn = getColumn(j);
-                product[i][j] = dotProduct(this.entries[i], jthColumn);
+            for (int j = 0; j < other.columns; j++) {
+                double[] jthColumn = other.getColumn(j);
+                product[i][j] = dotProduct(this.entries[i], jthColumn); //og: jthColumn
             }
         }
 
@@ -562,7 +562,7 @@ public final class Matrix {
         return true;
     }
 
-    public boolean isNullMatrix() {
+    public boolean isZeroMatrix() {
         return this.areAllEqual(0.0);
     }
 
@@ -697,10 +697,6 @@ public final class Matrix {
     private static double dotProduct(double[] arr1, double[] arr2) {
         int len1 = arr1.length;
         int len2 = arr2.length;
-        if (len1 != len2) {
-            throw new IllegalArgumentException(String.format("Dot product is undefined for array lengths %d and %d", len1, len2));
-        }
-
         double res = 0;
         for (int i = 0; i < len1; i++) {
             res += (arr1[i] * arr2[i]);
@@ -715,7 +711,7 @@ public final class Matrix {
         }
         double[] col = new double[this.rows];
         for (int i = 0; i < this.rows; i++) {
-            col[i] = this.getValue(i, n);
+            col[i] = this.entries[i][n];
         }
         return col;
     }
@@ -926,6 +922,21 @@ public final class Matrix {
 
         Matrix o = (Matrix)other;
         return this.equalsMatrix(o);
+    }
+
+    //----DRIVER FOR PRINTING TESTS----
+    public static void main(String[] args) {
+        Matrix A = Matrix.ofRows(
+                new double[] {1,2},
+                new double[] {3,4}
+        );
+        Matrix B = Matrix.ofRows(
+                new double[] {5,6},
+                new double[] {7,8}
+        );
+
+        Matrix C = A.multiply(B);
+        System.out.println(C);
     }
 }
 

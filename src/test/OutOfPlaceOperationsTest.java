@@ -294,4 +294,31 @@ public class OutOfPlaceOperationsTest {
         }
 
     }
+
+    @Nested
+    class MultiplicationTest {
+        //for product to be accurate: test result dimensions based on oeprands, check for out-of-place
+        //actual equality of result and expected
+        //check for square matrix multiplied with itself
+        //check for rectangular squaring throw
+        @Test
+        @DisplayName("Multiplication works correctly for 2x2 and 3x3.")
+
+        void multiplicationTestFor2x2() {
+
+            Matrix result1 = A.multiply(B);
+            Matrix expected1 = Matrix.ofRows(
+                    new double[] {19,22},
+                    new double[] {43, 50}
+            );
+
+            assertEquals(2, result1.getRows());
+            assertEquals(2, result1.getColumns()); //dim checks
+
+            assertEquals(expected1, result1);
+
+
+
+        }
+    }
 }
