@@ -317,7 +317,19 @@ public class OutOfPlaceOperationsTest {
 
             assertEquals(expected1, result1);
 
+            Matrix result2 = A.multiply(A);
+            Matrix expected2 = Matrix.ofRows(
+                    new double[] {7,10},
+                    new double[] {15,22}
+            );
 
+            assertEquals(result2, expected2);
+
+        }
+
+        @Test
+        @DisplayName("Multiplication Test for 3x3")
+        void multiplicationTestFor3x3() {
 
         }
     }
