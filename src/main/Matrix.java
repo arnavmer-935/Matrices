@@ -504,17 +504,17 @@ public final class Matrix {
             }
 
             for (int rowCursor = c + 1; rowCursor < ROWS; rowCursor++) {
-
+                double factor = grid[rowCursor][c] / grid[c][c];
                 for (int i = 0; i < grid[rowCursor].length; i++) {
 
-                    double factor = grid[rowCursor][c] / grid[c][c];
                     double elementInPivotRow = grid[c][i];
                     grid[rowCursor][i] -= (factor * elementInPivotRow);
                 }
             }
         }
+        double sign = swapCount % 2 == 0 ? 1.0: -1.0;
+        return sign * diagonalProduct(grid);
 
-        return Math.pow(-1, swapCount) * diagonalProduct(grid);
     }
 
     // ==== QUERY METHODS ====
@@ -634,7 +634,7 @@ public final class Matrix {
         List<Double> result = new ArrayList<>();
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.columns; j++) {
-                if (i >= j) {
+                if (i > j) {
                     result.add(entries[i][j]);
                 }
             }
@@ -758,10 +758,6 @@ public final class Matrix {
     }
 
     private Pivot findValidPivot(double[][] grid, int colIdx) {
-
-        if (0 > colIdx || colIdx >= grid[0].length) {
-            throw new IndexOutOfBoundsException("Column index out of bounds.");
-        }
 
         if (!almostEqual(grid[colIdx][colIdx], 0.0)) {
             return new Pivot(grid[colIdx][colIdx], colIdx, colIdx, false);
