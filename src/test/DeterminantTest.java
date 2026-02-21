@@ -160,6 +160,13 @@ public class DeterminantTest {
         assertEquals(det1, det2, 1e-6);
     }
 
+    @Test
+    @DisplayName("Testing determinant operations for matrices involving multiple row swaps.")
+    void determinantOfMultiSwap4x4() {
+        double expected = 84.0;
+        double actual = multiSwap4x4.determinant();
 
+        assertEquals(expected, actual, 1e-6);
+    }
 
 }
